@@ -1,0 +1,60 @@
+{
+  "publication": {
+    "title": "Single-cell analysis of human primary prostate cancer reveals the heterogeneity of tumor-associated epithelial cell states",
+    "doi": "10.1038/s41467-021-27322-4",
+    "url": "https://www.nature.com/articles/s41467-021-27322-4",
+    "pmcid": "PMC8748675",
+    "published": "2022-01-10",
+    "paper_license": "CC BY 4.0"
+  },
+  "repository": {
+    "url": "https://github.com/franklinhuanglab/scRNA-seq-Analysis-of-Prostate-Cancer-Samples",
+    "commit": "71dff9b7dc3d096b6ea2da1ed2cc5bae22876982",
+    "code_license": "GPL-3.0",
+    "entry_points_inspected": ["README.md", "Seqwell_Combined_E.R", "Seqwell_combined_Club.R"],
+    "used_component": "The repository-linked annotated epithelial Seurat output plus Seqwell_Combined_E.R normalization, explicit paired-donor mapping and fixed displayed marker lists.",
+    "execution_scope": "Original R scripts were inspected, not executed. The supplied Python extractor independently parses the deposited object and recomputes log-normalized expression, verifying it against the deposited RNA data slot."
+  },
+  "archive": {
+    "url": "https://www.dropbox.com/sh/ga770h1ik75l1o2/AADfmpEsHp8OLTtfkZaCxPd8a?dl=1",
+    "linked_from": "Pinned repository README.md",
+    "bytes": 609865383,
+    "sha256": "c969b8903d2387d5f186b9bf233cab41da2ff7f29eaea970365efed75ca5a790",
+    "reuse_note": "The archive is not redistributed here. No separate license file is supplied inside the archive; this demo publishes derived summaries with source attribution."
+  },
+  "deposited_object": {
+    "filename": "dge_E.rds",
+    "bytes": 150186765,
+    "sha256": "c0cbde35277b2f250ee13160afe9d163b62c720dca8c9f43f121a47e98b29430",
+    "zip_crc32_decimal": 2563492221,
+    "cells": 13322,
+    "rna_features": 21877,
+    "donors": 11,
+    "source_sample_groups": 15,
+    "sample_group_note": "These are author orig.ident groups, not 15 independent physical specimens. Biopsy replicates have already been merged within their three donor identifiers."
+  },
+  "derived_json": {
+    "filename": "patient-marker-data.json",
+    "bytes": 61934,
+    "sha256": "783a9788e5cc9f1afa9fac96fe8397c5266ea1266a1b056af72ef52b52d04abe",
+    "groups": 73,
+    "genes": 20,
+    "value_precision": "Unrounded float64-derived values; display rounding is not used by review rules."
+  },
+  "transformations": [
+    "Verify deposited object SHA256; parse only metadata, author identities and RNA assay components, without evaluating stored R commands.",
+    "Verify nonnegative integer counts, exact cell order, identity-label agreement and positive all-feature per-cell totals.",
+    "Select the fixed 20-gene panel before inspecting results; IL8 is present, CXCL8 is absent, so no alias replacement or summation occurs.",
+    "Compute natural log(1 + 10000 * gene count / all 21877 deposited-feature counts per cell); compare every selected gene/cell value with the deposited RNA data slot.",
+    "Summarize mean expression and detection fraction by original sample group, donor, collection tissue and author cell state.",
+    "Restrict each comparison to one collection context; require coverage in both states for the same donor. Compare equal-donor and pooled-cell estimates using exactly the same eligible cells.",
+    "Compute descriptive leave-one-donor-out means and a transparent positive-marker review rule; no p-values, confidence intervals, prediction accuracy or causal claims."
+  ],
+  "limits": [
+    "Processed public data and original author state assignments are retained; no alignment, fresh QC, clustering, tumor diagnosis or longitudinal lineage reconstruction was performed.",
+    "The fixed marker panel is biologically preselected and cannot establish transcriptome-wide target discovery or therapeutic efficacy.",
+    "Cells are not independent patient replicates. Small donor counts, tissue composition, annotation uncertainty and data-generation choices limit generalization.",
+    "Leave-one-donor-out stability is a within-cohort sensitivity analysis, not held-out validation or a population confidence interval.",
+    "A second independently collected cohort and orthogonal annotation/experimental confirmation are required before relying on a marker for a new biological or clinical conclusion."
+  ]
+}

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A donor-aware review of prostate epithelial markers from the Huang Lab's public single-cell data, prepared by Cathy Liu.">
+  <title>Exploratory Analyses Inspired by the Franklin Huang Lab</title>
+  <link rel="stylesheet" href="styles.css?v=1">
+</head>
+<body>
+  <main class="page">
+    <h1>Exploratory Analyses Inspired by the Franklin Huang Lab</h1>
+    <div class="byline">
+      Cathy Liu · Cancer transcriptomics · <a href="mailto:cathyliu014@gmail.com">cathyliu014@gmail.com</a><br>
+      Prepared for the Franklin Huang Lab, UCSF<br>
+      Personal exploratory project, October 2026
+    </div>
+    <nav class="section-nav" aria-label="Demo sections">
+      <a href="#motivation">Motivation</a><a href="#a1">Across patients</a><a href="#a2">Marker review</a><a href="#relevance">Relevance</a>
+    </nav>
+    <p>The Huang Lab's single-cell work shows that prostate cancer is surrounded by a varied epithelial environment, including club cells with androgen-responsive programs. Before using a marker to follow these states in another specimen, I wanted to ask a smaller question: does its expression contrast recur across patients, or does a sample with many cells carry the result?</p>
+    <p>I built a donor-aware review of the lab's public epithelial-cell data. It compares cell-pooled and patient-balanced estimates, reveals missing comparison groups, and tests what changes when one patient is left out. The output is a short list of expression contrasts to check next, not a new classifier or a claim about drug sensitivity.</p>
+
+    <hr id="motivation">
+    <section aria-labelledby="how-heading">
+      <h2 id="how-heading">How it works</h2>
+      <p>Start with a fixed panel of 20 markers selected from the authors' analysis code. For each eligible patient, compare two annotated epithelial states using counts from the deposited RNA assay. Each patient's contrast then gets the same weight. A second estimate pools the same cells, showing the effect of unequal sample sizes.</p>
+      <p class="methods-note" id="cohort-note">Loading the verified cohort summary…</p>
+    </section>
+
+    <hr id="a1">
+    <section aria-labelledby="analysis-one-heading">
+      <h2 id="analysis-one-heading">Analysis 1 — Does the contrast recur across patients?</h2>
+      <div class="experiment">
+        <div class="exp-label">Method</div><div class="exp-title">One patient, one paired contrast</div>
+        <p>A positive value means higher average expression in the first state. Change the minimum cell count to see which patients still support a comparison. The threshold is a coverage preference, not a significance test.</p>
+      </div>
+      <div class="panel">
+        <form class="searchbar" id="target-form">
+          <label class="sr-only" for="target-select">Marker gene</label>
+          <input id="target-select" list="target-options" autocomplete="off" placeholder="e.g. PIGR or MMP7" value="PIGR">
+          <datalist id="target-options"></datalist><button type="submit">Inspect gene</button>
+        </form>
+        <div class="chips" id="suggestions"><span>Try:</span></div>
+        <p id="input-error" class="input-error" role="status"></p>
+        <div class="controls">
+          <label>State comparison<select id="contrast"><option value="Club|LE">Club − luminal (LE)</option><option value="Club|BE">Club − basal (BE)</option><option value="LE|BE">Luminal (LE) − basal (BE)</option></select></label>
+          <label>Specimen stratum<select id="tissue"></select></label>
+          <label>Minimum cells per state / patient<select id="minimum"><option value="10">10 cells</option><option value="20" selected>20 cells</option><option value="30">30 cells</option><option value="50">50 cells</option></select></label>
+        </div>
+        <svg id="hero-viz" class="viz forest" viewBox="0 0 600 420" role="img" aria-label="Donor-level expression contrasts and pooled and balanced estimates"></svg>
+        <div class="readout" id="readout" aria-live="polite"></div>
+        <figcaption>Mean log-normalized expression difference, not log fold change. Dots are descriptive estimates, not confidence intervals. The line beside the balanced estimate spans leave-one-patient-out estimates.</figcaption>
+        <details class="coverage"><summary>Inspect included and omitted patients</summary><div id="coverage"></div></details>
+      </div>
+      <div class="metric-row">
+        <div class="metric"><span class="metric-val" id="metric-one">—</span><span class="metric-desc">eligible patients</span></div>
+        <div class="metric"><span class="metric-val" id="metric-two">—</span><span class="metric-desc">cells in this comparison</span></div>
+        <div class="metric"><span class="metric-val" id="metric-three">—</span><span class="metric-desc">equal-patient difference</span></div>
+      </div>
+    </section>
+
+    <hr id="a2">
+    <section aria-labelledby="analysis-two-heading">
+      <h2 id="analysis-two-heading">Analysis 2 — Which markers deserve a closer look?</h2>
+      <div class="experiment">
+        <div class="exp-label">Sensitivity</div><div class="exp-title">Review the panel before picking a follow-up</div>
+        <p>A positive-contrast candidate needs at least four eligible patients, a positive difference in at least 75% of them, no sign reversal when any one is omitted, and the minimum average difference below. These are exploratory rules, not validated biomarker criteria.</p>
+      </div>
+      <div class="panel">
+        <div class="controls review-controls">
+          <label>Minimum equal-patient difference<select id="effect"><option value="0.1">0.10</option><option value="0.25" selected>0.25</option><option value="0.5">0.50</option></select></label>
+          <button type="button" id="download">Export current review CSV</button>
+        </div>
+        <p class="table-note">Uses the specimen, state and coverage settings above. Select a gene to inspect its patients. Negative contrasts remain visible. Rules use unrounded values; full precision is retained in the export. LOO means leave one patient out.</p>
+        <div id="review-summary" class="readout" aria-live="polite"></div>
+        <div class="table-wrap"><table id="review-table"><caption class="sr-only">Marker review with equal-patient differences and sensitivity</caption><thead><tr><th scope="col">Gene</th><th scope="col">Mean Δ</th><th scope="col">Positive<br>patients</th><th scope="col">LOO min</th><th scope="col">Review</th></tr></thead><tbody id="review-body"></tbody></table></div>
+        <p class="table-note" id="export-status" role="status"></p>
+      </div>
+      <p>What this lets the lab do: carry a defined set of markers into an independent specimen check, while keeping donor-sensitive or poorly covered contrasts out of a “shared state” claim. Where Cathy adds value: connecting single-cell interpretation with sample-level QC and a follow-up that could overturn the initial interpretation.</p>
+    </section>
+
+    <hr id="relevance">
+    <section aria-labelledby="relevance-heading">
+      <h2 id="relevance-heading">Why this matters for the lab</h2>
+      <p>The source study describes epithelial heterogeneity and incomplete retention of some states in organoids. Before tracking those states in another system, a practical first step is to understand how patient-dependent the proposed readouts are. This prototype addresses that step in tissue data; it does not measure tissue–organoid retention or identify a therapeutic dependency.</p>
+      <p>A next experiment would preselect both consistent and donor-sensitive markers, then measure them in independent specimens with both states from each patient. Use state definitions not based on the tested marker, positive and negative controls, and balanced processing batches. Repeated within-patient differences would support further study; loss or reversal would downgrade the marker. This is a proposed validation, not an experiment performed here.</p>
+      <h2>What I would bring</h2>
+      <p>My PDAC project involved interpreting single-cell differences and integrating evidence to prioritize biological questions. I would bring that habit of connecting a computational result to its sample context, alongside my practical laboratory and validation experience. Here, the useful contribution is a reproducible patient-aware review that can accept the next cohort's grouped expression summaries and expose what still needs checking.</p>
+      <h2>Methods note</h2>
+      <p class="methods-note">The source is the processed epithelial object linked by <a href="https://github.com/franklinhuanglab/scRNA-seq-Analysis-of-Prostate-Cancer-Samples/tree/71dff9b7dc3d096b6ea2da1ed2cc5bae22876982">the Huang Lab's pinned 2022 repository</a>, associated with <a href="https://doi.org/10.1038/s41467-021-27322-4">Song et al., Nature Communications</a> and <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE176031">GSE176031</a>. Source hashes and runnable analysis are in the <a href="https://github.com/liuzhitong330/franklin-huang-lab-demo">reproducibility repository</a>.</p>
+      <p class="methods-note">Expression is recomputed as log1p(10,000 × gene counts / total counts across all deposited RNA features), then averaged within patient and state. Marker-based source annotations make marker contrasts partly circular; this is a consistency check, not independent state validation. Patient balancing does not remove batch effects. Leave-one-patient-out sensitivity is not external validation, predictive accuracy or a confidence interval.</p>
+      <p class="methods-note">This independent, assistant-supported implementation is not a reproduction of the complete upstream pipeline or an endorsed lab tool. It does not establish additional hands-on experience or clinical utility. Input schema, exclusions, code and license details are in the <a href="README.md">README</a> and <a href="THIRD_PARTY_NOTICES.md">source notices</a>.</p>
+    </section>
+    <footer>Cathy Liu · <a href="mailto:cathyliu014@gmail.com">cathyliu014@gmail.com</a> · <a href="tel:+14152163799">415-216-3799</a></footer>
+  </main>
+  <script src="data.js?v=1"></script><script src="app.js?v=1"></script>
+</body>
+</html>

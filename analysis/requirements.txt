@@ -1,0 +1,6 @@
+# Reproduction tested with Python 3.12. Use a dedicated virtual environment.
+rdata==1.1.0
+numpy==2.5.4
+scipy==1.18.1
+pandas==3.0.6
+xarray==2026.9.0
